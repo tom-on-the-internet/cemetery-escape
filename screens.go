@@ -63,7 +63,7 @@ func deathScreen(width, height int) string {
 	screen := lipgloss.JoinVertical(
 		lipgloss.Center,
 		styles.subtleOrange.Render(text),
-		"\nPRESS A TO TRY THE LEVEL AGAIN\n\nPRESS Q TO QUIT",
+		"\nPRESS "+styles.magenta.Render("A")+" TO TRY THE LEVEL AGAIN\n\nPRESS Q TO QUIT",
 	)
 
 	screen = lipgloss.PlaceHorizontal(width, lipgloss.Center, screen)
@@ -77,7 +77,7 @@ func pausedScreen(width, height int) string {
 	screen := lipgloss.JoinVertical(
 		lipgloss.Center,
 		styles.subtleOrange.Render(text),
-		"\nPRESS P TO CONTINUE PLAYING",
+		"\nPRESS "+styles.magenta.Render("P")+" TO CONTINUE PLAYING",
 	)
 
 	screen = lipgloss.PlaceHorizontal(width, lipgloss.Center, screen)

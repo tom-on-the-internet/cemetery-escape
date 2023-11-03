@@ -50,6 +50,7 @@ func (m model) View() string {
 
 	// use a string builder because string concatenation is too slow
 	builder := strings.Builder{}
+	builder.Grow(viewportWidth * viewportHeight)
 
 	for rowIdx := yStart; rowIdx <= yEnd; rowIdx++ {
 		for colIdx := xStart; colIdx <= xEnd; colIdx++ {
