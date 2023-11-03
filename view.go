@@ -25,13 +25,24 @@ var styles = struct{ yellow, grey, green, red, lightGrey, white, blue, subtleOra
 	magenta:      lipgloss.NewStyle().Foreground(lipgloss.Color("#BB00FF")),
 }
 
+var tileSet = struct{ tombstoneAscii, tombstoneNerdFont, ghostAscii, ghostNerdFont, playerAscii, playerNerdFont, doorAscii, doorNerdFont string }{
+	tombstoneAscii:    "█",
+	tombstoneNerdFont: "󰮢",
+	ghostAscii:        "Ø",
+	ghostNerdFont:     "󰊠",
+	playerAscii:       "Ý",
+	playerNerdFont:    "",
+	doorAscii:         "D",
+	doorNerdFont:      "󰠚",
+}
+
 func (m model) View() string {
 	if m.windowTooSmall {
 		return tooZoomedIn(m.termWidth, m.termHeight)
 	}
 
 	if !m.hasStarted {
-		return titleScreen(m.termWidth, m.termHeight)
+		return titleScreen(m.termWidth, m.termHeight, m.gameTiles)
 	}
 
 	if m.isPaused {
@@ -39,7 +50,7 @@ func (m model) View() string {
 	}
 
 	if m.gameWon {
-		return winScreen(m.termWidth, m.termHeight)
+		return winScreen(m.termWidth, m.termHeight, m.gameTiles)
 	}
 
 	if m.isGameOver {
@@ -81,41 +92,41 @@ func (m model) View() string {
 // getTile determines what should be rendered in this position.
 func getTile(m model, pos position, xStart, xEnd, yStart, yEnd int) string {
 	if pos == m.playerPos {
-		return styles.blue.Render("")
+		return styles.blue.Render(m.gameTiles.player)
 	}
 
 	if t := m.level().tombstoneMap[pos]; t != nil {
 		if t.checked && t.hasKey {
-			return styles.yellow.Render("󰮢")
+			return styles.yellow.Render(m.gameTiles.tombstone)
 		}
 
 		if t.checked {
-			return styles.grey.Render("󰮢")
+			return styles.grey.Render(m.gameTiles.tombstone)
 		}
 
-		return styles.lightGrey.Render("󰮢")
+		return styles.lightGrey.Render(m.gameTiles.tombstone)
 	}
 
 	if g := m.level().ghostMap[pos]; g != nil {
 		if g.kind == "wander" {
-			return styles.white.Render("󰊠")
+			return styles.white.Render(m.gameTiles.ghost)
 		}
 
 		if g.kind == "follow" {
-			return styles.green.Render("󰊠")
+			return styles.green.Render(m.gameTiles.ghost)
 		}
 
 		if g.kind == "hunt" {
-			return styles.red.Render("󰊠")
+			return styles.red.Render(m.gameTiles.ghost)
 		}
 	}
 
 	if pos.y == m.level().door.y && pos.x == m.level().door.x {
 		if m.playerHasKey {
-			return styles.yellow.Render("󰠚")
+			return styles.yellow.Render(m.gameTiles.door)
 		}
 
-		return "󰠚"
+		return m.gameTiles.door
 	}
 
 	// entrance marker
@@ -210,4 +221,22 @@ func getBounds(m model) (int, int, int, int) {
 	}
 
 	return xStart, xEnd, yStart, yEnd
+}
+
+func loadTiles(hasNerdFont bool) tiles {
+	if hasNerdFont {
+		return tiles{
+			player:    tileSet.playerNerdFont,
+			tombstone: tileSet.tombstoneNerdFont,
+			ghost:     tileSet.ghostNerdFont,
+			door:      tileSet.doorNerdFont,
+		}
+	}
+
+	return tiles{
+		player:    tileSet.playerAscii,
+		tombstone: tileSet.tombstoneAscii,
+		ghost:     tileSet.ghostAscii,
+		door:      tileSet.doorAscii,
+	}
 }

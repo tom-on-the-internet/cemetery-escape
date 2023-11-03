@@ -1,5 +1,14 @@
 package main
 
+type level struct {
+	ghostMap       map[position]*ghost
+	tombstoneMap   map[position]*tombstone
+	width          int
+	height         int
+	door           position
+	playerStartPos position
+}
+
 func makeLevels() []level {
 	return []level{
 		makeLevel(level0()),

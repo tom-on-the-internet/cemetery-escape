@@ -6,22 +6,23 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func titleScreen(width, height int) string {
+func titleScreen(width, height int, gameTiles tiles) string {
 	text := "CEMETERY ESCAPE"
 
-	description := `You  must escape the cemetery.
-Search tombstones 󰮢 to find the key.
-Then head for the door 󰠚,
-but watch out for ghosts 󰊠.
+	description := "You " + styles.blue.Render(gameTiles.player) + " must escape the cemetery.\n" +
+		"Search tombstones " + styles.blue.Render(gameTiles.tombstone) + " to find the key.\n" +
+		"Then head for the door " + styles.blue.Render(gameTiles.door) + ",\n" +
+		"but watch out for ghosts " + styles.blue.Render(gameTiles.ghost) + ".\n\n"
 
-REQUIREMENTS:
+	description += `RECOMMENDATIONS:
 
 - A Nerd Font (https://www.nerdfonts.com/)
 - A dark color scheme terminal
 
-MOVE    ARROW KEYS
-PAUSE   P
-QUIT    Q`
+MOVE            ARROW KEYS
+PAUSE           P
+CHANGE TILES    F
+QUIT            Q`
 	descriptionStyle := lipgloss.NewStyle().
 		PaddingTop(1).
 		PaddingRight(0).
@@ -32,7 +33,7 @@ QUIT    Q`
 		lipgloss.Center,
 		styles.subtleOrange.Render(text),
 		descriptionStyle.Render(description),
-		"Good luck!\n\nPRESS ANY KEY TO START",
+		"PRESS ANY KEY TO START",
 	)
 
 	screen = lipgloss.PlaceHorizontal(width, lipgloss.Center, screen)
@@ -41,8 +42,8 @@ QUIT    Q`
 	return screen
 }
 
-func winScreen(width, height int) string {
-	text := "CONGRATULATIONS!\n  YOU ESCAPED!\n\n      󰊠 󰊠"
+func winScreen(width, height int, gameTiles tiles) string {
+	text := "CONGRATULATIONS!\n  YOU ESCAPED!\n\n      " + gameTiles.ghost + gameTiles.ghost
 
 	email := styles.magenta.Render("tom@tomontheinternet.com")
 	screen := lipgloss.JoinVertical(

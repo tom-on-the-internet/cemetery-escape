@@ -15,34 +15,41 @@ type position struct {
 	y int
 }
 
+type tiles struct {
+	player    string
+	tombstone string
+	ghost     string
+	door      string
+}
+
 // model is the game model use with bubbletea.
 type model struct {
+	gameTiles      tiles
+	direction      string
 	username       string
 	levels         []level
-	levelIdx       int
 	playerPos      position
+	levelIdx       int
 	termHeight     int
 	termWidth      int
 	playerCoolDown int
 	windowTooSmall bool
-	playerHasKey   bool
 	gameWon        bool
 	isGameOver     bool
 	isPaused       bool
 	hasStarted     bool
+	playerHasKey   bool
+	useNerdFont    bool
 }
 
 func (m model) level() level {
-	return m.levels[m.levelIdx]
-}
+	// don't panic if this is called
+	// when it should not be
+	if m.levelIdx >= len(m.levels) {
+		return m.levels[0]
+	}
 
-type level struct {
-	ghostMap       map[position]*ghost
-	tombstoneMap   map[position]*tombstone
-	width          int
-	height         int
-	door           position
-	playerStartPos position
+	return m.levels[m.levelIdx]
 }
 
 type tombstone struct {
@@ -68,11 +75,15 @@ func main() {
 	}
 
 	levels := makeLevels()
+	useNerdFont := true
+
 	initialModel := model{
-		username:  username,
-		levels:    makeLevels(),
-		levelIdx:  0,
-		playerPos: levels[0].playerStartPos,
+		username:    username,
+		levels:      makeLevels(),
+		levelIdx:    0,
+		playerPos:   levels[0].playerStartPos,
+		gameTiles:   loadTiles(useNerdFont),
+		useNerdFont: useNerdFont,
 	}
 
 	p := tea.NewProgram(initialModel, tea.WithAltScreen())
@@ -103,6 +114,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.String() {
 			case "q", "ctrl+c", "esc":
 				return m, tea.Quit
+			case "f":
+				m = switchTiles(m)
+				return m, nil
 			}
 
 			m.hasStarted = true
@@ -135,32 +149,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "q", "ctrl+c", "esc":
 			return m, tea.Quit
-		case "up":
-			if playerCanMove("up", m) {
-				m.playerPos.y--
-				m = afterPlayerMove(m)
-			}
-
+		case "f":
+			m = switchTiles(m)
 			return m, nil
-		case "down":
-			if playerCanMove("down", m) {
-				m.playerPos.y++
-				m = afterPlayerMove(m)
-			}
-
+		case "up", "left", "down", "right", " ":
+			m = setDirection(msg.String(), m)
 			return m, nil
-		case "left":
-			if playerCanMove("left", m) {
-				m.playerPos.x--
-				m = afterPlayerMove(m)
-			}
-
-			return m, nil
-		case "right":
-			if playerCanMove("right", m) {
-				m.playerPos.x++
-				m = afterPlayerMove(m)
-			}
 
 		case "p":
 			m.isPaused = !m.isPaused
@@ -202,6 +196,7 @@ func (m model) restartLevel() model {
 	m.hasStarted = true
 	m.levels = makeLevels()
 	m.playerPos = m.level().playerStartPos
+	m.direction = ""
 
 	return m
 }
@@ -211,26 +206,7 @@ func playerCanMove(direction string, m model) bool {
 		return false
 	}
 
-	switch direction {
-	case "up":
-		m.playerPos.y--
-	case "down":
-		m.playerPos.y++
-	case "left":
-		m.playerPos.x--
-	case "right":
-		m.playerPos.x++
-	}
-
-	if t := m.level().tombstoneMap[m.playerPos]; t != nil {
-		return false
-	}
-
-	playerInBounds := m.playerPos.y > 0 && m.playerPos.y < m.level().height-1 &&
-		m.playerPos.x > 0 &&
-		m.playerPos.x < m.level().width-1
-
-	return playerInBounds
+	return !isBlocked(direction, m)
 }
 
 func afterPlayerMove(m model) model {
@@ -248,6 +224,7 @@ func afterPlayerMove(m model) model {
 
 		m.playerPos = m.level().playerStartPos
 		m.playerHasKey = false
+		m.direction = ""
 
 		return m
 	}
@@ -266,6 +243,27 @@ func afterPlayerMove(m model) model {
 }
 
 func onTick(m model) model {
+	if isBlocked(m.direction, m) {
+		m.direction = ""
+	}
+
+	if m.direction != "" && playerCanMove(m.direction, m) {
+		switch m.direction {
+		case "up":
+			m.playerPos.y--
+		case "down":
+			m.playerPos.y++
+		case "left":
+			m.playerPos.x--
+		case "right":
+			m.playerPos.x++
+		}
+
+		m = afterPlayerMove(m)
+	}
+
+	m.playerCoolDown--
+
 	// create a new map so we don't wipe out an existing ghost
 	// when moving another ghost
 	newGhostMap := map[position]*ghost{}
@@ -309,14 +307,55 @@ func onTick(m model) model {
 		newGhostMap[nextPoint] = g
 	}
 
-	m.playerCoolDown--
-
-	m.levels[m.levelIdx].ghostMap = newGhostMap
+	if m.levelIdx < len(m.levels) {
+		m.levels[m.levelIdx].ghostMap = newGhostMap
+	}
 
 	playerOnGhost := m.level().ghostMap[m.playerPos] != nil
 	if playerOnGhost {
 		m.isGameOver = true
 	}
+
+	return m
+}
+
+func setDirection(direction string, m model) model {
+	if m.direction == "space" {
+		m.direction = ""
+		return m
+	}
+
+	m.direction = direction
+
+	return m
+}
+
+func isBlocked(direction string, m model) bool {
+	switch direction {
+	case "up":
+		m.playerPos.y--
+	case "down":
+		m.playerPos.y++
+	case "left":
+		m.playerPos.x--
+	case "right":
+		m.playerPos.x++
+	}
+
+	if t := m.level().tombstoneMap[m.playerPos]; t != nil {
+		return true
+	}
+
+	playerInBounds := m.playerPos.y > 0 && m.playerPos.y < m.level().height-1 &&
+		m.playerPos.x > 0 &&
+		m.playerPos.x < m.level().width-1
+
+	return !playerInBounds
+}
+
+func switchTiles(m model) model {
+	m.useNerdFont = !m.useNerdFont
+	m.gameTiles = loadTiles(m.useNerdFont)
 
 	return m
 }
