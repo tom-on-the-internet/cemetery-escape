@@ -43,7 +43,7 @@ QUIT            Q`
 }
 
 func winScreen(width, height int, gameTiles tiles) string {
-	text := "CONGRATULATIONS!\n  YOU ESCAPED!\n\n      " + gameTiles.ghost + gameTiles.ghost
+	text := "CONGRATULATIONS!\n  YOU ESCAPED!\n\n      " + gameTiles.ghost + " " + gameTiles.ghost
 
 	email := styles.magenta.Render("tom@tomontheinternet.com")
 	screen := lipgloss.JoinVertical(
