@@ -11,27 +11,15 @@ but watch out for ghosts.
 
 ## Requirements
 
-- A [Nerd Font](https://www.nerdfonts.com/)
 - A modern terminal with a dark color scheme
 
 ## Recommendations
 
-This game involves a lot of running.
-
-If your key repeat rate is low, or your repeat delay is high, you'll have a hard time.
-
-I use:
-
-```txt
-repeat_rate=70
-repeat_delay=200
-```
-
-How you set this up will depend on your OS and Window Server.
+- A [Nerd Font](https://www.nerdfonts.com/)
 
 ## Installation
 
-### Using Go
+### Using Go (>=1.21)
 
 ```sh
 go install github.com/tom-on-the-internet/cemetery-escape@latest

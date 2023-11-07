@@ -210,7 +210,7 @@ func playerCanMove(direction string, m model) bool {
 }
 
 func afterPlayerMove(m model) model {
-	m.playerCoolDown = 5
+	m.playerCoolDown = 7
 
 	isNextToDoor := isAdjacent(m.level().door.x, m.level().door.y, m.playerPos.x, m.playerPos.y)
 
