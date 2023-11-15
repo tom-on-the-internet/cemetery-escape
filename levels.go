@@ -9,7 +9,16 @@ type level struct {
 	playerStartPos position
 }
 
-func makeLevels() []level {
+func makeLevels(isDemo bool) []level {
+	if isDemo {
+		return []level{
+			makeLevel(demoTombstoneLevel()),
+			makeLevel(demoWanderLevel()),
+			makeLevel(demoFollowLevel()),
+			makeLevel(demoHuntLevel()),
+		}
+	}
+
 	return []level{
 		makeLevel(level0()),
 		makeLevel(level1()),
@@ -371,5 +380,69 @@ func level9() []string {
 		"                                                                                         HS      SH                                                                                     ",
 		"                                                                                       H  S   P  S  H                                                                                   ",
 		"                                                                                                                                                                                        ",
+	}
+}
+
+// demeTombstone is a demo level showing tombstones
+func demoTombstoneLevel() []string {
+	return []string{
+		"                      D                     ",
+		"                                            ",
+		"                                            ",
+		"                                            ",
+		"              S                  K          ",
+		"                                            ",
+		"                                            ",
+		"                                            ",
+		"                      P                     ",
+		"                                            ",
+	}
+}
+
+// demoWanderLevel is a demo level showing a wander ghost
+func demoWanderLevel() []string {
+	return []string{
+		"                      D                     ",
+		"                                            ",
+		"                          K                 ",
+		"                                            ",
+		"              W                             ",
+		"                                            ",
+		"                                            ",
+		"                                            ",
+		"                      P                     ",
+		"                                            ",
+	}
+}
+
+// demoFollowLevel is a demo level showing a follow ghost
+func demoFollowLevel() []string {
+	return []string{
+		"                      D                     ",
+		"                                            ",
+		"                          S          K  S   ",
+		"                          S             S   ",
+		"              F           SSSSSSSSSSSSSSS   ",
+		"                                            ",
+		"                                            ",
+		"                                            ",
+		"                      P                     ",
+		"                                            ",
+	}
+}
+
+func demoHuntLevel() []string {
+	// demoHuntLevel is a demo level showing a hunt ghost
+	return []string{
+		"                      D                     ",
+		"                                            ",
+		"                          S          K  S   ",
+		"                          S             S   ",
+		"              H           SSSSSSSSSSSSSSS   ",
+		"                                            ",
+		"                                            ",
+		"                                            ",
+		"                      P                     ",
+		"                                            ",
 	}
 }

@@ -40,6 +40,7 @@ type model struct {
 	hasStarted     bool
 	playerHasKey   bool
 	useNerdFont    bool
+	isDemo         bool
 }
 
 func (m model) level() level {
@@ -74,16 +75,24 @@ func main() {
 		username = "You"
 	}
 
-	levels := makeLevels()
+	isDemo := false
+
+	demoEnvVar := strings.TrimSpace(os.Getenv("DEMO"))
+	if demoEnvVar != "" {
+		isDemo = true
+	}
+
+	levels := makeLevels(isDemo)
 	useNerdFont := true
 
 	initialModel := model{
 		username:    username,
-		levels:      makeLevels(),
+		levels:      levels,
 		levelIdx:    0,
 		playerPos:   levels[0].playerStartPos,
 		gameTiles:   loadTiles(useNerdFont),
 		useNerdFont: useNerdFont,
+		isDemo:      isDemo,
 	}
 
 	p := tea.NewProgram(initialModel, tea.WithAltScreen())
@@ -194,7 +203,7 @@ func (m model) restartLevel() model {
 	m.isGameOver = false
 	m.isPaused = false
 	m.hasStarted = true
-	m.levels = makeLevels()
+	m.levels = makeLevels(m.isDemo)
 	m.playerPos = m.level().playerStartPos
 	m.direction = ""
 
