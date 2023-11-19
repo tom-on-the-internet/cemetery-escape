@@ -2,7 +2,7 @@
 
 Cemetery Escape is a game that you can play in your terminal.
 
-![Cemetery Escape](https://github.com/tom-on-the-internet/cemetery-escape/assets/8356936/7b0aa505-f43a-4928-8b0c-0a838a58e340)
+![cemetery-escape](https://github.com/tom-on-the-internet/cemetery-escape/assets/8356936/01447be1-7eb3-4e15-aa5f-79c662968d70)
 
 You must escape the cemetery.
 Search tombstones to find the key.
