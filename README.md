@@ -9,6 +9,14 @@ Search tombstones to find the key.
 Then head for the door,
 but watch out for ghosts.
 
+## About
+
+✍️ Blog post about the game.
+<https://blog.tomontheinternet.com/posts/cemetery-escape/>
+
+📹 YouTube video about the game.
+<https://www.youtube.com/watch?v=yZA1JmwQwYE>
+
 ## Requirements
 
 - A modern terminal with a dark color scheme
